@@ -1,10 +1,14 @@
 package com.techment.OtrsSystem.domain;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "tbl_features")
-public class Features {
+public class Features implements GrantedAuthority {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -49,5 +53,10 @@ public class Features {
 
     public void setFeatureDescription(String featureDescription) {
         this.featureDescription = featureDescription;
+    }
+
+    @Override
+    public String getAuthority() {
+        return featureName;
     }
 }

@@ -1,6 +1,8 @@
 package com.techment.OtrsSystem.domain;
 
-import sun.security.krb5.internal.Ticket;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,6 +23,7 @@ public class User {
 
     @Column(name = "password")
     @NotNull
+    @JsonIgnore
     private String password;
 
     @Column(name = "first_name")
@@ -89,7 +92,7 @@ public class User {
     private List<Features> features;
 
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_ticket")
     private List<Ticket> tickets;
 
@@ -124,6 +127,31 @@ public class User {
         this.department = department;
         this.features = features;
         this.tickets = tickets;
+    }
+
+    //overloaded constructor
+
+    public User(@NotNull String email, @NotNull String password, @NotNull String firstName, String middleName, @NotNull String lastName,
+                @NotNull String employeeId, @NotNull String phoneNumber, @NotNull String workingNumber, String extensionLandline, String landlineNumber,
+                Gender gender, Designation designation, Department department, @NotNull boolean flag, Timestamp createdAt, String createdBy,
+                List<Features> features) {
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.employeeId = employeeId;
+        this.phoneNumber = phoneNumber;
+        this.workingNumber = workingNumber;
+        this.extensionLandline = extensionLandline;
+        this.landlineNumber = landlineNumber;
+        this.gender = gender;
+        this.designation = designation;
+        this.department = department;
+        this.features = features;
+        this.flag = flag;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
     }
 
     public long getId() {

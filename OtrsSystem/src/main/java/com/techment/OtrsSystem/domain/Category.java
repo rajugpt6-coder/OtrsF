@@ -2,6 +2,7 @@ package com.techment.OtrsSystem.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_category")
@@ -15,6 +16,7 @@ public class Category {
     @Column(name = "category_name")
     @NotNull
     private String categoryName;
+
 
     protected Category(){}
 
@@ -37,4 +39,5 @@ public class Category {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
 }
