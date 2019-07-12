@@ -55,6 +55,7 @@ public class Ticket {
     @NotNull
     private Category category;
 
+
     protected Ticket(){}
 
 
