@@ -34,16 +34,14 @@ public class Ticket {
     private Timestamp dueDate;
 
     @Column(name = "updated_by")
-    @NotNull
     private String updatedBy;
 
     @Column(name = "updated_at")
-    @NotNull
     private Timestamp updatedAt;
 
     @Column(name = "ticket_activation_flag")
     @NotNull
-    private Timestamp ticketActivationFlag;
+    private boolean ticketActivationFlag;
 
     @ManyToOne
     @JoinColumn(name = "fk_status")
@@ -55,11 +53,32 @@ public class Ticket {
     @NotNull
     private Category category;
 
+    @ManyToOne
+    private User user;
+
 
     protected Ticket(){}
 
 
-    public Ticket(@NotNull String ticketTitle, @NotNull String ticketDescription, @NotNull Timestamp createdAt, @NotNull String createdBy, @NotNull Timestamp dueDate, @NotNull String updatedBy, @NotNull Timestamp updatedAt, @NotNull Timestamp ticketActivationFlag, @NotNull Status status, @NotNull Category category) {
+    public Ticket(@NotNull String ticketTitle, @NotNull String ticketDescription, @NotNull Timestamp createdAt,
+                  @NotNull String createdBy, @NotNull Timestamp dueDate, @NotNull boolean ticketActivationFlag,
+                  @NotNull Status status, @NotNull Category category, User user) {
+
+        this.ticketTitle = ticketTitle;
+        this.ticketDescription = ticketDescription;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.dueDate = dueDate;
+        this.ticketActivationFlag = ticketActivationFlag;
+        this.status = status;
+        this.category = category;
+        this.user = user;
+    }
+
+    public Ticket(@NotNull String ticketTitle, @NotNull String ticketDescription, @NotNull Timestamp createdAt,
+                  @NotNull String createdBy, @NotNull Timestamp dueDate, String updatedBy, Timestamp updatedAt,
+                  @NotNull boolean ticketActivationFlag, @NotNull Status status, @NotNull Category category, User user) {
+
         this.ticketTitle = ticketTitle;
         this.ticketDescription = ticketDescription;
         this.createdAt = createdAt;
@@ -70,6 +89,8 @@ public class Ticket {
         this.ticketActivationFlag = ticketActivationFlag;
         this.status = status;
         this.category = category;
+        this.user = user;
+
     }
 
     public long getId() {
@@ -136,11 +157,11 @@ public class Ticket {
         this.updatedAt = updatedAt;
     }
 
-    public Timestamp getTicketActivationFlag() {
+    public boolean getTicketActivationFlag() {
         return ticketActivationFlag;
     }
 
-    public void setTicketActivationFlag(Timestamp ticketActivationFlag) {
+    public void setTicketActivationFlag(boolean ticketActivationFlag) {
         this.ticketActivationFlag = ticketActivationFlag;
     }
 
@@ -158,5 +179,13 @@ public class Ticket {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
