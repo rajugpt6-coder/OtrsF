@@ -9,20 +9,22 @@ import com.techment.OtrsSystem.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -59,7 +61,7 @@ public class UserService {
 
     public Optional<User> signup(String email, String firstName, String middleName, String lastName,
                                  String employeeId, String phoneNumber, String workingNumber, String extensionLandline,
-                                 String landlineNumber, String genderName, String designation, String department){
+                                 String landlineNumber, String genderName, String designation, String department) {
         LOGGER.info("New user attempting to sign up");
         Optional<User> user = Optional.empty();
         String password = GenerateSecurePassword.generatePassword(10);
@@ -97,30 +99,29 @@ public class UserService {
         return user;
     }
 
-    public  Optional<String> signin(String username, String password) {
+    public Optional<String> signin(String username, String password) {
         LOGGER.info("New user attempting to sign in");
         String token = "";
         Optional<User> user = userRepository.findByEmail(username);
-        String rtn="";
+        String rtn = "";
 
         if (user.isPresent()) {
             try {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
                 token = jwtProvider.createToken(username, user.get().getFeatures());
-                rtn= "{\"status\":\"success\"," +
-                        "\"id\":" +"\""+user.get().getId()+"\""+
-                        ",\"email\":" +"\""+user.get().getEmail()+"\""+
-                        ",\"phoneNo\":" +"\""+user.get().getPhoneNumber()+"\""+
-                        ",\"feature\":" +"\""+user.get().getFeatures().get(0).getFeatureName()+"\""+
-                        ",\"token\":" +"\""+token+"\""+
+                rtn = "{\"status\":\"success\"," +
+                        "\"id\":" + "\"" + user.get().getId() + "\"" +
+                        ",\"email\":" + "\"" + user.get().getEmail() + "\"" +
+                        ",\"phoneNo\":" + "\"" + user.get().getPhoneNumber() + "\"" +
+                        ",\"feature\":" + "\"" + user.get().getFeatures().get(0).getFeatureName() + "\"" +
+                        ",\"token\":" + "\"" + token + "\"" +
                         '}';
 
-            } catch (AuthenticationException e){
-                rtn= "{\"status\":\"failure\",\"msg\":\"Incorrect user name or password !!\"}";
+            } catch (AuthenticationException e) {
+                rtn = "{\"status\":\"failure\",\"msg\":\"Incorrect user name or password !!\"}";
             }
-        }
-        else{
-            rtn= "{\"status\":\"failure\",\"msg\":\"please sign up !!\"}";
+        } else {
+            rtn = "{\"status\":\"failure\",\"msg\":\"please sign up !!\"}";
         }
         return Optional.of(rtn);
     }
@@ -128,7 +129,7 @@ public class UserService {
     public String forgotPassword(String email) {
         LOGGER.info("User forgot Password");
         Optional<User> user = userRepository.findByEmail(email);
-        if(user.isPresent()) {
+        if (user.isPresent()) {
 
             String password = GenerateSecurePassword.generatePassword(10);
             //send password to mail
@@ -136,7 +137,7 @@ public class UserService {
                 sendEmail(user.get().getEmail(), password);
                 user.get().setPassword(passwordEncoder.encode(password));
                 return "{\"status\":\"success\",\"msg\":\"New password sent to your email. Please check !!\"}";
-            }catch (MailException mailException) {
+            } catch (MailException mailException) {
                 return "{\"status\":\"failure\",\"msg\":\"Unable to send mail !!\"}";
             }
         }
@@ -146,7 +147,7 @@ public class UserService {
     public String updatePassword(long id, String oldPassword, String newPassword, String token) {
         if (userRepository.existsById(id) &&
                 userRepository.findById(id).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(filterToken(token))) &&
-               userRepository.findById(id).get().getPassword().equals(passwordEncoder.encode(oldPassword))) {
+                userRepository.findById(id).get().getPassword().equals(passwordEncoder.encode(oldPassword))) {
             User user = userRepository.findById(id).get();
             user.setPassword(passwordEncoder.encode(newPassword));
             return "{\"status\":\"success\",\"msg\":\"Password updates successfully !!\"}";
@@ -154,7 +155,9 @@ public class UserService {
         return "{\"status\":\"failure\",\"msg\":\"Something went wrong !!\"}";
     }
 
-    public String filterToken(String token) { return token.replace("Bearer", "").trim(); }
+    public String filterToken(String token) {
+        return token.replace("Bearer", "").trim();
+    }
 
 
     public void sendEmail(String email, String password) throws MailException {
@@ -180,6 +183,100 @@ public class UserService {
          * This send() contains an Object of SimpleMailMessage as an Parameter
          */
         javaMailSender.send(mail);
+    }
+
+    public void updateProfile(long id, String newPhoneNumber, String landline,
+                              String workingNumber, String extension, String designation, String token) {
+        token = filterToken(token);
+        if (userRepository.existsById(id) &&
+                userRepository.findById(id).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))
+                && userRepository.findById(id).get().isFlag()) {
+
+            User user = userRepository.findById(id).get();
+            if (newPhoneNumber != null)
+                user.setPhoneNumber(newPhoneNumber);
+
+            if (landline != null)
+                user.setLandlineNumber(landline);
+
+            if (extension != null)
+                user.setExtensionLandline(extension);
+
+            if (workingNumber != null)
+                user.setWorkingNumber(workingNumber);
+
+            if (designation != null)
+                user.setDesignation(new Designation(designation));
+
+            user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            user.setUpdatedBy(user.getFirstName() + " " + user.getLastName());
+            userRepository.save(user);
+        }
+    }
+
+    public void deactivateUser(long id) {
+        User user = userRepository.findById(id).get();
+        user.setFlag(false);
+    }
+
+    public void activateUser(long id) {
+        User user = userRepository.findById(id).get();
+        user.setFlag(true);
+    }
+
+    public void setFeaturesAccess(long id, List<String> features) {
+        User user = userRepository.findById(id).get();
+        ArrayList<Features> featuresArrayList = new ArrayList<>();
+        for (String feature : features) {
+            Features featuresObj = featuresRepository.findByFeatureName(feature).get();
+            featuresArrayList.add(featuresObj);
+        }
+        user.setFeatures(featuresArrayList);
+    }
+
+//    public void removeFeatureAccess(long id, List<String> features) {
+//        int size = features.size();
+//        List<Features> allotedFeatures = new ArrayList<>();
+//        allotedFeatures = userRepository.findById(id).get().getFeatures();
+//        int position = -1;
+//        for(int i = 0; i<size; i++){
+//            for(String feature : features){
+//                if(feature.equalsIgnoreCase(allotedFeatures.get(i).getFeatureName())){
+//                    position = i;
+//                    break;
+//                }
+//            }
+//        }
+//    }
+
+
+    public Page<User> getAll(Pageable pageable) throws NoSuchElementException {
+        LOGGER.info("Request to retrieve all users");
+        return userRepository.findAll(pageable);
+    }
+
+    public Optional<User> findUserById (long id) {   return userRepository.findById(id);   }
+
+    public User findUserByEmail(String email, String token)  throws NoSuchElementException {
+        if(email.equalsIgnoreCase(jwtProvider.getUsername(filterToken(token)))) {
+            return userRepository.findByEmail(email).orElseThrow(() ->
+                    new NoSuchElementException("No users found"));
+        }
+        return null;
+    }
+
+    //searching code
+
+    public Page<User> findUsersByEmployeeId(String employeeId, Pageable pageable){
+        return userRepository.findByEmployeeId(employeeId, pageable);
+    }
+
+    public Page<User> findUsersByFirstName(String firstName, Pageable pageable){
+        return userRepository.findByFirstName(firstName, pageable);
+    }
+
+    public Page<User> findUsersByFlag(boolean flag, Pageable pageable){
+        return userRepository.findByFlag(flag, pageable);
     }
 
 }

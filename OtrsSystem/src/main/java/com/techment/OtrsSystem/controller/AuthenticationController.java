@@ -32,8 +32,8 @@ public class AuthenticationController {
 
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.OK)
-    public String signin(@RequestBody @Validated UserDto userDto){
-        return userService.signin(userDto.getUsername(), userDto.getPassword()).orElseThrow(()->
+    public String signin(@RequestBody @Validated LoginDto loginDto){
+        return userService.signin(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(()->
               new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
     }
 

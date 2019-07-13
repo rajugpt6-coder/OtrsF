@@ -71,15 +71,15 @@ public class User {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_gender")
     private Gender gender;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "fk_designation")
     private Designation designation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_department")
     private Department department;
 
