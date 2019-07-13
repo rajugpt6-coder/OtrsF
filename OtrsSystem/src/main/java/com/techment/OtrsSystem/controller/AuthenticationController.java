@@ -22,10 +22,24 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.CREATED)
     public User signup(@RequestBody @Validated UserDto userDto) {
 
-        return userService.signup(userDto.getUsername(),userDto.getPassword(), userDto.getFirstName(),
+        return userService.signup(userDto.getUsername(), userDto.getFirstName(),
                 userDto.getMiddleName(),userDto.getLastName(), userDto.getEmployeeId(), userDto.getPhoneNumber(),
                 userDto.getWorkingNumber(), userDto.getExtensionLandline(), userDto.getLandlineNumber(),
                 userDto.getGender(), userDto.getDesignation(), userDto.getDepartment()).orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST,"User already exists"));
 
     }
+
+
+    @PostMapping("/signin")
+    @ResponseStatus(HttpStatus.OK)
+    public String signin(@RequestBody @Validated UserDto userDto){
+        return userService.signin(userDto.getUsername(), userDto.getPassword()).orElseThrow(()->
+              new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+    }
+
+    @GetMapping("/forgotPassword/{email}")
+    public String forgotPassword(@PathVariable("email") String email){
+        return userService.forgotPassword(email);
+    }
+
 }

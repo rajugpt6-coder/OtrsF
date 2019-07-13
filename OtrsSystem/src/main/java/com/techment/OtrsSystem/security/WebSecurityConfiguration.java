@@ -26,7 +26,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/auth/signin").permitAll()
                 .antMatchers("/auth/signup").permitAll()
-                .antMatchers("/auth/forgotPassword").permitAll()
+                .antMatchers("/auth/forgotPassword/{email}").permitAll()
                 // Disallow everything else..
                 .anyRequest().authenticated();
 

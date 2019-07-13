@@ -10,22 +10,22 @@ public class UserDto {
 
     private String password;
 
-    @NotNull
+
     private String firstName;
 
     private String middleName;
 
-    @NotNull
+
     private String lastName;
 
-    @NotNull
+
     private String employeeId;
 
 
-    @NotNull
+
     private String phoneNumber;
 
-    @NotNull
+
     private String workingNumber;
 
 
@@ -34,7 +34,7 @@ public class UserDto {
 
     private String landlineNumber;
 
-    @NotNull
+
     private String gender;
 
     private String designation;
