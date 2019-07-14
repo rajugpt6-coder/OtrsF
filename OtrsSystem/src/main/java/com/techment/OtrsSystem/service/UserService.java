@@ -279,4 +279,20 @@ public class UserService {
         return userRepository.findByFlag(flag, pageable);
     }
 
+    public Page<User> findByPhoneNumber(String phoneNumber, Pageable pageable) {
+        return userRepository.findByPhoneNumber(phoneNumber, pageable);
+    }
+
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email).get();
+    }
+
+    public Page<User> findByDepartment(String department, Pageable pageable){
+        return userRepository.findByDepartment(departmentRepository.findByDepartmentName(department).get(), pageable);
+    }
+
+    public Page<User> findByDesignation(String designation, Pageable pageable){
+        return userRepository.findByDesignation(designationRepository.findByDesignationName(designation).get(), pageable);
+    }
+
 }

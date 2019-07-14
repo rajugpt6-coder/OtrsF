@@ -1,5 +1,7 @@
 package com.techment.OtrsSystem.repository;
 
+import com.techment.OtrsSystem.domain.Category;
+import com.techment.OtrsSystem.domain.Status;
 import com.techment.OtrsSystem.domain.Ticket;
 import com.techment.OtrsSystem.domain.User;
 import org.springframework.data.domain.Page;
@@ -14,22 +16,28 @@ import java.util.Optional;
 public interface TicketRepository extends PagingAndSortingRepository<Ticket, Long> {
     Page<Ticket> findByUser(User user, Pageable pageable);
 
+    Page<Ticket> findByAssignedUser(User user, Pageable pageable);
+
+    Page<Ticket> findByCategoryAndStatus(Category category, Status status, Pageable pageable);
+
     //searching
     Page<Ticket> findByTicketTitle(String title, Pageable pageable);
 
     Page<Ticket> findByTicketTitleAndUser(String title, User user, Pageable pageable);
 
-    Page<Ticket> findByStatus(String status, Pageable pageable);
+    Page<Ticket> findByStatus(Status status, Pageable pageable);
 
-    Page<Ticket> findByStatusAndUser(String status, User user, Pageable pageable);
+    Page<Ticket> findByStatusAndUser(Status status, User user, Pageable pageable);
 
     Page<Ticket> findByDueDate(Timestamp date, Pageable pageable);
 
-    Page<Ticket> findByCategory(String category, Pageable pageable);
+    Page<Ticket> findByCategory(Category category, Pageable pageable);
+
+    Page<Ticket> findByCreatedAt(Timestamp createdAt, Pageable pageable);
 
     //searching end
 
-    long countTicketByCategory(String category);
+    long countTicketByCategory(Category category);
 
-    long countTicketByCategoryAndStatus(String category, String status);
+    long countTicketByCategoryAndStatus(Category category, Status status);
 }

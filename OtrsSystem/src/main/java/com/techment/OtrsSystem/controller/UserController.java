@@ -96,4 +96,24 @@ public class UserController {
         return userService.findUsersByFlag(flag, pageable);
     }
 
+    @GetMapping("/search/email/{email}")
+    public User getUserByEmail(@PathVariable("email") String email) {
+        return userService.findByEmail(email);
+    }
+
+    @GetMapping("/search/phoneNumber/{phoneNumber}")
+    public Page<User> getUsersByPhone(@PathVariable("phoneNumber") String phoneNumber, Pageable pageable) {
+        return userService.findByPhoneNumber(phoneNumber, pageable);
+    }
+
+    @GetMapping("/search/department/{department}")
+    public Page<User> getUsersByDepartment(@PathVariable("department") String department, Pageable pageable){
+        return userService.findByDepartment(department, pageable);
+    }
+
+    @GetMapping("/search/designation/{designation}")
+    public Page<User> getUsersByDesignation(@PathVariable("designation") String designation, Pageable pageable) {
+        return userService.findByDesignation(designation, pageable);
+    }
+
 }

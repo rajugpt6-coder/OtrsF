@@ -76,6 +76,37 @@ public class TicketController {
 
     }
 
+    @GetMapping("/tickets/resolveTickets")
+    public Page<Ticket> getTicketsToResolve(@PathVariable("id") long userId, @RequestHeader("Authorization") String token,
+                                            Pageable pageable) {
+        return ticketService.getTicketsForResolve(userId, token, pageable);
+    }
+
+    @PostMapping("/assignTicket/ticket/{ticketId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void assignTicket (@PathVariable("id") long userId, @PathVariable("ticketId") long ticketId,
+                               @RequestHeader("Authorization") String token) {
+        ticketService.assignTicket(userId, ticketId, token);
+
+    }
+
+    @GetMapping("/assignTickets")
+    public Page<Ticket> getAssignedTickets(@PathVariable("id") long userId,
+                                           @RequestHeader("Authorization") String token, Pageable pageable){
+        return ticketService.getAssignedTickets(userId,token, pageable);
+    }
+
+    @PatchMapping("/tickets/{ticketId}/deactivate")
+    public void deactivateTicketByUser(@PathVariable("id") long userId, @PathVariable("ticketId") long ticketId,
+                                       @RequestHeader("Authorization") String token) {
+        ticketService.deactivateTicketByUser(userId, ticketId, token);
+    }
+
+    @PatchMapping("/tickets/{ticketId}/admin/deactivate")
+    public void deactivateTicketByAdmin(@PathVariable("ticketId") long ticketId){
+        ticketService.deactivateTicketByAdmin(ticketId);
+    }
+
         //searching code
 
     @GetMapping("/tickets/search/title/{title}")
@@ -106,14 +137,20 @@ public class TicketController {
 
     @GetMapping("/tickets/search/dueDate/{dueDate}")
 //    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CSR') or hasRole('ROLE_USER')")
-    public Page<Ticket> getTicketsByDueDate(@PathVariable("dueDate") Timestamp dueDate, Pageable pageable) {
-        return ticketService.findTicketsByDueDate(dueDate, pageable);
+    public Page<Ticket> getTicketsByDueDate(@PathVariable("dueDate") String dueDate, Pageable pageable) {
+        return ticketService.findTicketsByDueDate(Timestamp.valueOf(dueDate), pageable);
     }
 
     @GetMapping("/tickets/search/category/{category}")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<Ticket> getTicketsByCategory(@PathVariable("category") String category, Pageable pageable) {
         return ticketService.findTicketsByCategory(category, pageable);
+    }
+
+    @GetMapping("/tickets/search/dueDate/{createdAt}")
+//    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CSR') or hasRole('ROLE_USER')")
+    public Page<Ticket> getTicketsByCreatedDate(@PathVariable("createdAt") String createdAt, Pageable pageable) {
+        return ticketService.findTicketsByCreatedAt(Timestamp.valueOf(createdAt), pageable);
     }
 
 

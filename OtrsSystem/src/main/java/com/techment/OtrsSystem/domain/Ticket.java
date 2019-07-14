@@ -56,6 +56,10 @@ public class Ticket {
     @ManyToOne
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_to")
+    private User assignedUser;
+
 
     protected Ticket(){}
 
@@ -187,5 +191,17 @@ public class Ticket {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isTicketActivationFlag() {
+        return ticketActivationFlag;
+    }
+
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
     }
 }
