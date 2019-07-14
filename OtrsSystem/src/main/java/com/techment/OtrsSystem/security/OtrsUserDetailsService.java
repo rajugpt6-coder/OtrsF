@@ -15,9 +15,8 @@ import static org.springframework.security.core.userdetails.User.withUsername;
 
 @Component
 public class OtrsUserDetailsService implements UserDetailsService {
-
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     JwtProvider jwtProvider;

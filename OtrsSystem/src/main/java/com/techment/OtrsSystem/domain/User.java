@@ -75,7 +75,7 @@ public class User {
     @JoinColumn(name = "fk_gender")
     private Gender gender;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_designation")
     private Designation designation;
 

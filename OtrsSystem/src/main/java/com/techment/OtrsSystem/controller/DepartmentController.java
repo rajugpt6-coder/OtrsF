@@ -23,7 +23,7 @@ public class DepartmentController {
 
     @PostMapping("/department")
     @ResponseStatus(HttpStatus.CREATED)
-    public Optional<Department> createCategory(@RequestBody @Validated DepartmentDto departmentDto, @PathVariable("id") Long id,
+    public Optional<Department> createDepartment(@RequestBody @Validated DepartmentDto departmentDto, @PathVariable("id") Long id,
                                                @RequestHeader(value = "Authorization") String token){
         LOGGER.info("authorised");
         return Optional.ofNullable(departmentService.createDepartment(departmentDto.getDepartmentName(), id, token));
@@ -32,7 +32,7 @@ public class DepartmentController {
 
     @DeleteMapping("/delete/department/{departmentName}")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createCategory(@PathVariable("departmentName") String departmentName, @PathVariable("id") Long id,
+    public String deleteDepartment(@PathVariable("departmentName") String departmentName, @PathVariable("id") Long id,
                                                @RequestHeader(value = "Authorization") String token){
         LOGGER.info("authorised");
         return departmentService.deleteDepartment(departmentName, id, token);

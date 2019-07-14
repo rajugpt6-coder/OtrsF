@@ -99,9 +99,12 @@ public class TicketService {
     public Optional<String> updateStatus(String status, long ticketId, String token, long id) {
         token = userService.filterToken(token);
         Optional<String> rtn = Optional.empty();
-        if (userRepository.findById(id).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))) {
+        if (userRepository.findById(id).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token)) &&
+            ticketRepository.existsById(ticketId) && userRepository.existsById(id)) {
             Optional<Ticket> ticket = ticketRepository.findById(ticketId);
             ticket.get().setStatus(statusRepository.findByStatusName(status).get());
+            ticket.get().setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            ticket.get().setUpdatedBy(userRepository.findById(id).get().getEmail());
             ticketRepository.save(ticket.get());
             rtn = Optional.of("{\"status\":\"success\",\"msg\":\"status has been updated successfully\"}");
         } else {

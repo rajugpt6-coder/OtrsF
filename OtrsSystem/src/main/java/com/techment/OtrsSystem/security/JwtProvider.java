@@ -1,5 +1,6 @@
 package com.techment.OtrsSystem.security;
 
+
 import com.techment.OtrsSystem.domain.Features;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,16 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Utility Class for common Java Web Token operations
+ *
+ * Created by Mary Ellen Bowman
+ */
 @Component
-public class JwtProvider {
+public class JwtProvider{
 
     private final String ROLES_KEY = "roles";
+
     private JwtParser parser;
 
     private String secretKey;
@@ -32,12 +39,12 @@ public class JwtProvider {
      * Create JWT string given username and roles.
      *
      * @param username
-     * @param features
+     * @param roles
      * @return jwt string
      */
-    public String createToken(String username, List<Features> features) {
+    public String createToken(String username, List<Features> roles) {
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put(ROLES_KEY, features.stream().map(feature ->new SimpleGrantedAuthority(feature.getAuthority()))
+        claims.put(ROLES_KEY, roles.stream().map(role ->new SimpleGrantedAuthority(role.getAuthority()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
         Date now = new Date();

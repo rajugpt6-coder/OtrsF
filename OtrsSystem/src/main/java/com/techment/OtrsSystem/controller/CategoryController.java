@@ -32,7 +32,7 @@ public class CategoryController {
 
     @DeleteMapping("/delete/category/{categoryName}")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createCategory(@PathVariable("categoryName") String categoryName, @PathVariable("id") Long id,
+    public String deleteCategory(@PathVariable("categoryName") String categoryName, @PathVariable("id") Long id,
                                  @RequestHeader(value = "Authorization") String token){
         LOGGER.info("authorised");
         return categoryService.deleteCategory(categoryName, id, token);
