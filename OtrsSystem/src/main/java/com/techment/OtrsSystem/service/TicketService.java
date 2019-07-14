@@ -1,10 +1,7 @@
 package com.techment.OtrsSystem.service;
 
 import com.techment.OtrsSystem.domain.Ticket;
-import com.techment.OtrsSystem.repository.CategoryRepository;
-import com.techment.OtrsSystem.repository.StatusRepository;
-import com.techment.OtrsSystem.repository.TicketRepository;
-import com.techment.OtrsSystem.repository.UserRepository;
+import com.techment.OtrsSystem.repository.*;
 import com.techment.OtrsSystem.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +38,8 @@ public class TicketService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+
 
 
 
@@ -111,6 +110,60 @@ public class TicketService {
         return rtn;
     }
 
+    public void assignTicket(long userId, long ticketId, String token){
+        token = userService.filterToken(token);
+
+        if(userRepository.existsById(userId) && ticketRepository.existsById(ticketId) &&
+            userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))){
+            Ticket ticket = ticketRepository.findById(ticketId).get();
+            ticket.setAssignedUser(userRepository.findById(userId).get());
+            ticketRepository.save(ticket);
+        }
+
+    }
+
+    public Page<Ticket> getAssignedTickets(long userId, String token, Pageable pageable) {
+        token = userService.filterToken(token);
+        if(userRepository.existsById(userId) &&
+                userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))){
+            return ticketRepository.findByAssignedUser(userRepository.findById(userId).get(), pageable);
+        }
+        return null;
+    }
+
+    public Page<Ticket> getTicketsForResolve(long userId, String token, Pageable pageable){
+        token = userService.filterToken(token);
+        if(userRepository.existsById(userId) &&
+                userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))){
+
+           return ticketRepository.findByCategoryAndStatus(categoryRepository.findByCategoryName(userRepository.findById(userId).get().getDepartment().getDepartmentName()).get(),
+                    statusRepository.findByStatusName("PENDING").get(), pageable);
+        }
+        return null;
+    }
+
+    public void deactivateTicketByUser(long userId, long ticketId, String token) {
+        token = userService.filterToken(token);
+        if(userRepository.existsById(userId) && ticketRepository.existsById(ticketId)
+            && userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))
+            && ticketRepository.findById(ticketId).get().getUser().equals(userRepository.findById(userId).get())) {
+
+            Ticket ticket = ticketRepository.findById(ticketId).get();
+            ticket.setTicketActivationFlag(false);
+            ticketRepository.save(ticket);
+        }
+    }
+
+    public void deactivateTicketByAdmin( long ticketId) {
+
+        if(ticketRepository.existsById(ticketId)) {
+
+            Ticket ticket = ticketRepository.findById(ticketId).get();
+            ticket.setTicketActivationFlag(false);
+            ticketRepository.save(ticket);
+        }
+    }
+
     //searching
     public Page<Ticket> findTicketsByTitle(String title, Pageable pageable){
         return ticketRepository.findByTicketTitle(title, pageable);
@@ -127,21 +180,25 @@ public class TicketService {
     public Page<Ticket> findTicketsByTitleAndStatus(String status, long userId, Pageable pageable, String token){
         token = userService.filterToken(token);
         if(userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))) {
-            return ticketRepository.findByStatusAndUser(status, userRepository.findById(userId).get(), pageable);
+            return ticketRepository.findByStatusAndUser(statusRepository.findByStatusName(status).get(), userRepository.findById(userId).get(), pageable);
         }
         return null;
     }
 
     public Page<Ticket> findTicketsByStatus(String status, Pageable pageable){
-        return ticketRepository.findByStatus(status, pageable);
+        return ticketRepository.findByStatus(statusRepository.findByStatusName(status).get(), pageable);
     }
 
     public Page<Ticket> findTicketsByCategory(String category, Pageable pageable){
-        return ticketRepository.findByCategory(category, pageable);
+        return ticketRepository.findByCategory(categoryRepository.findByCategoryName(category).get(), pageable);
     }
 
     public Page<Ticket> findTicketsByDueDate(Timestamp dueDate, Pageable pageable){
         return ticketRepository.findByDueDate(dueDate, pageable);
+    }
+
+    public Page<Ticket> findTicketsByCreatedAt(Timestamp createdAt, Pageable pageable){
+        return ticketRepository.findByCreatedAt(createdAt, pageable);
     }
 
     //Analytics part
@@ -151,10 +208,10 @@ public class TicketService {
     }
 
     public long countTicketByCategory (String category) {
-        return ticketRepository.countTicketByCategory(category);
+        return ticketRepository.countTicketByCategory(categoryRepository.findByCategoryName(category).get());
     }
 
     public long countTicketByCategoryAndStatus (String category, String status){
-        return ticketRepository.countTicketByCategoryAndStatus(category, status);
+        return ticketRepository.countTicketByCategoryAndStatus(categoryRepository.findByCategoryName(category).get(), statusRepository.findByStatusName(status).get());
     }
 }

@@ -1,5 +1,7 @@
 package com.techment.OtrsSystem.repository;
 
+import com.techment.OtrsSystem.domain.Department;
+import com.techment.OtrsSystem.domain.Designation;
 import com.techment.OtrsSystem.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +19,10 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     Page<User> findByFirstName(String firstName, Pageable pageable);
 
     Page<User> findByFlag(boolean flag, Pageable pageable);
+
+    Page<User> findByPhoneNumber(String phoneNumber, Pageable pageable);
+
+    Page<User> findByDepartment(Department department, Pageable pageable);
+
+    Page<User> findByDesignation(Designation designation, Pageable pageable);
 }
