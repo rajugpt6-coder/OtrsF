@@ -234,20 +234,31 @@ public class UserService {
         user.setFeatures(featuresArrayList);
     }
 
-//    public void removeFeatureAccess(long id, List<String> features) {
-//        int size = features.size();
-//        List<Features> allotedFeatures = new ArrayList<>();
-//        allotedFeatures = userRepository.findById(id).get().getFeatures();
-//        int position = -1;
-//        for(int i = 0; i<size; i++){
-//            for(String feature : features){
-//                if(feature.equalsIgnoreCase(allotedFeatures.get(i).getFeatureName())){
-//                    position = i;
-//                    break;
-//                }
-//            }
-//        }
-//    }
+    public void removeFeatureAccess(long id, List<String> features) {
+        if(userRepository.existsById(id)) {
+            ArrayList<Features> featureRemoveList = new ArrayList<>();
+            for (String feature : features) {
+                Features featureObj = featuresRepository.findByFeatureName(feature).get();
+                featureRemoveList.add(featureObj);
+            }
+
+            ArrayList<Features> allUsersFeatures = new ArrayList<>();
+            User user = userRepository.findById(id).get();
+            allUsersFeatures = (ArrayList<Features>) user.getFeatures();
+
+
+            for (Features removeFeature : featureRemoveList) {
+                for (Features userFeature : allUsersFeatures) {
+                    if (removeFeature.equals(userFeature)) {
+                        allUsersFeatures.remove(removeFeature);
+                        break;
+                    }
+                }
+            }
+            user.setFeatures(allUsersFeatures);
+            userRepository.save(user);
+        }
+    }
 
 
     public Page<User> getAll(Pageable pageable) throws NoSuchElementException {
@@ -268,11 +279,11 @@ public class UserService {
     //searching code
 
     public Page<User> findUsersByEmployeeId(String employeeId, Pageable pageable){
-        return userRepository.findByEmployeeId(employeeId, pageable);
+        return userRepository.findByEmployeeIdIgnoreCaseContaining(employeeId, pageable);
     }
 
     public Page<User> findUsersByFirstName(String firstName, Pageable pageable){
-        return userRepository.findByFirstName(firstName, pageable);
+        return userRepository.findByFirstNameIgnoreCaseContaining(firstName, pageable);
     }
 
     public Page<User> findUsersByFlag(boolean flag, Pageable pageable){
@@ -280,7 +291,7 @@ public class UserService {
     }
 
     public Page<User> findByPhoneNumber(String phoneNumber, Pageable pageable) {
-        return userRepository.findByPhoneNumber(phoneNumber, pageable);
+        return userRepository.findByPhoneNumberIgnoreCaseContaining(phoneNumber, pageable);
     }
 
     public User findByEmail(String email){

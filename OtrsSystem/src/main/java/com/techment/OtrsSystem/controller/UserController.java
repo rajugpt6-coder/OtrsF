@@ -53,10 +53,10 @@ public class UserController {
         userService.setFeaturesAccess(userId, userDto.getFeatureAccessList());
     }
 
-//    @PatchMapping("removeFeatures/{userId}")
-//    public void removeFeatures(@PathVariable("userId") long userId, @RequestBody UserDto userDto){
-//
-//    }
+    @PatchMapping("removeFeatures/{userId}")
+    public void removeFeatures(@PathVariable("userId") long userId, @RequestBody UserDto userDto){
+            userService.removeFeatureAccess(userId, userDto.getFeatureAccessList());
+    }
 
     @GetMapping
 //    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CSR')")
