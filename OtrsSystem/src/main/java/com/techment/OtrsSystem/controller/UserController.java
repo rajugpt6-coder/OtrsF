@@ -2,6 +2,8 @@ package com.techment.OtrsSystem.controller;
 
 import com.techment.OtrsSystem.domain.User;
 import com.techment.OtrsSystem.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @CrossOrigin
@@ -18,6 +21,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
+
 
     @PostMapping("{id}/updatePassword/oldPassword/{oldPassword}/newPassword/{newPassword}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,7 +36,7 @@ public class UserController {
 
     @PatchMapping("{id}/updateProfile")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePhoneNumber(@PathVariable("id") long id, @RequestBody UserDto userDto,
+    public void updateProfile(@PathVariable("id") long id, @RequestBody UserDto userDto,
                                   @RequestHeader("Authorization") String token) {
         userService.updateProfile(id, userDto.getPhoneNumber(), userDto.getLandlineNumber(),
                 userDto.getWorkingNumber(), userDto.getExtensionLandline(), userDto.getDesignation(), token);
@@ -50,6 +57,7 @@ public class UserController {
     @PatchMapping("{id}/addFeatureAccess/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void addFeatureAccess(@PathVariable("userId") long userId, @RequestBody UserDto userDto){
+        LOGGER.info(String.valueOf(userDto.getFeatureAccessList()));
         userService.setFeaturesAccess(userId, userDto.getFeatureAccessList());
     }
 
@@ -59,16 +67,16 @@ public class UserController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CSR')")
+    @PreAuthorize("hasAuthority('F_GET_ALL_USERS')")
     public Page<User> getAllUsers(Pageable pageable) {
-        return userService.getAll(pageable);
+        return  userService.getAll(pageable);
     }
 
 
     @GetMapping("/{id}")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Optional<User> getUserDetails(@PathVariable("id") long id) {
-        return userService.findUserById(id);
+    public User getUserDetails(@PathVariable("id") long id) {
+        return userService.findUserById(id).orElseThrow(() -> new NoSuchElementException("User " + id + " not found"));
     }
 
     @GetMapping("/myDetails/{email}")

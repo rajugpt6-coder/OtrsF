@@ -14,13 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -67,12 +65,14 @@ public class UserService {
         String password = GenerateSecurePassword.generatePassword(10);
         LOGGER.info(password);
 
+        ArrayList<Features> features = new ArrayList<>();
+        features.add(featuresRepository.findByFeatureName("F_GET_ALL_USERS").get());
 
         if (!userRepository.findByEmail(email).isPresent()) {
             try {
 //            Optional<Features> features =
                 Optional<Gender> gender = genderRepository.findByGenderName(genderName);
-                sendEmail(email, password);
+//                sendEmail(email, password);
                 user = Optional.of(userRepository.save(new User(email,
                         passwordEncoder.encode(password),
                         firstName,
@@ -89,7 +89,7 @@ public class UserService {
                         FLAG,
                         Timestamp.valueOf(LocalDateTime.now()),
                         firstName + " " + lastName,
-                        Arrays.asList(featuresRepository.findByFeatureName("F_LOGIN").get())
+                        features
 
                 )));
             } catch (MailException mailException) {
@@ -225,13 +225,24 @@ public class UserService {
     }
 
     public void setFeaturesAccess(long id, List<String> features) {
-        User user = userRepository.findById(id).get();
-        ArrayList<Features> featuresArrayList = new ArrayList<>();
-        for (String feature : features) {
-            Features featuresObj = featuresRepository.findByFeatureName(feature).get();
-            featuresArrayList.add(featuresObj);
+        LOGGER.info("user trying to add features");
+        if(userRepository.existsById(id)) {
+            User user = userRepository.findById(id).get();
+            ArrayList<Features> featuresArrayList = new ArrayList<>();
+            for (String feature : features) {
+                Features featuresObj = featuresRepository.findByFeatureName(feature).get();
+                featuresArrayList.add(featuresObj);
+            }
+            List<Features> prevFeatures = user.getFeatures();
+
+            for (Features features1 : prevFeatures) {
+                if (!featuresArrayList.contains(features1)) {
+                    featuresArrayList.add(features1);
+                }
+            }
+            user.setFeatures(featuresArrayList);
+            userRepository.save(user);
         }
-        user.setFeatures(featuresArrayList);
     }
 
     public void removeFeatureAccess(long id, List<String> features) {
@@ -244,7 +255,10 @@ public class UserService {
 
             ArrayList<Features> allUsersFeatures = new ArrayList<>();
             User user = userRepository.findById(id).get();
-            allUsersFeatures = (ArrayList<Features>) user.getFeatures();
+
+             for(Features features1 : user.getFeatures()) {
+                 allUsersFeatures.add(features1);
+             }
 
 
             for (Features removeFeature : featureRemoveList) {

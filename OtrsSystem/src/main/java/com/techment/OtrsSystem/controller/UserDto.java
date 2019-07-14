@@ -1,10 +1,12 @@
 package com.techment.OtrsSystem.controller;
 
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.ResourceSupport;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class UserDto {
-    private long id;
+public class UserDto extends ResourceSupport {
 
     @NotNull
     private String username;
@@ -48,13 +50,15 @@ public class UserDto {
 
     private boolean flag;
 
-    public UserDto(long id, @NotNull String username, @NotNull String firstName,
+    protected UserDto() {}
+
+    public UserDto( @NotNull String username, @NotNull String firstName,
                    @NotNull String middleName, String lastName, @NotNull String employeeId,
                    @NotNull String phoneNumber, @NotNull String workingNumber, String extensionLandline,
                    String landlineNumber, List<String> featureAccessList, @NotNull String gender,
                    @NotNull String designation, String department, boolean flag) {
 
-        this.id = id;
+
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -71,8 +75,8 @@ public class UserDto {
         this.flag = flag;
     }
 
-    public long getId() {
-        return id;
+    public UserDto(List<String> featureAccessList) {
+        this.featureAccessList = featureAccessList;
     }
 
     public String getUsername() {

@@ -70,7 +70,7 @@ public class TicketController {
 
     @PatchMapping("/tickets/{ticketId}/status/{status}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Optional<String> updateStatus(@PathVariable("ticketId") long ticketId, @PathVariable("status") String status, @PathVariable("id") long id,
+    public Optional<String> updateTicketStatus(@PathVariable("ticketId") long ticketId, @PathVariable("status") String status, @PathVariable("id") long id,
                                          @RequestHeader(value = "Authorization") String token) {
         return ticketService.updateStatus(status, ticketId, token, id);
 
