@@ -166,13 +166,13 @@ public class TicketService {
 
     //searching
     public Page<Ticket> findTicketsByTitle(String title, Pageable pageable){
-        return ticketRepository.findByTicketTitle(title, pageable);
+        return ticketRepository.findByTicketTitleIgnoreCaseContaining(title, pageable);
     }
 
     public Page<Ticket> findTicketsByTitleAndUser(String title, long userId, Pageable pageable, String token){
         token = userService.filterToken(token);
         if(userRepository.findById(userId).get().getEmail().equalsIgnoreCase(jwtProvider.getUsername(token))) {
-            return ticketRepository.findByTicketTitleAndUser(title, userRepository.findById(userId).get(), pageable);
+            return ticketRepository.findByTicketTitleAndUserIgnoreCaseContaining(title, userRepository.findById(userId).get(), pageable);
         }
         return null;
     }

@@ -21,9 +21,9 @@ public interface TicketRepository extends PagingAndSortingRepository<Ticket, Lon
     Page<Ticket> findByCategoryAndStatus(Category category, Status status, Pageable pageable);
 
     //searching
-    Page<Ticket> findByTicketTitle(String title, Pageable pageable);
+    Page<Ticket> findByTicketTitleIgnoreCaseContaining(String title, Pageable pageable);
 
-    Page<Ticket> findByTicketTitleAndUser(String title, User user, Pageable pageable);
+    Page<Ticket> findByTicketTitleAndUserIgnoreCaseContaining(String title, User user, Pageable pageable);
 
     Page<Ticket> findByStatus(Status status, Pageable pageable);
 
